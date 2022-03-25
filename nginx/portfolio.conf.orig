@@ -1,0 +1,29 @@
+upstream portfolio {
+    server web:8000;
+}
+
+server {
+
+    listen 80;
+    #server_name django6.liamsirkett.com;
+    server_name 18.224.207.115 liams-cloud.com www.liams-cloud.com;
+
+    location / {
+        proxy_pass http://portfolio;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+
+    location /static/ {
+        #alias /home/app/web/static/;
+        alias /home/app1/web/static/;
+    }
+
+    location /media/ {
+        #alias /home/app/web/media/;
+        alias /home/app1/web/media/;
+    }
+
+
+}

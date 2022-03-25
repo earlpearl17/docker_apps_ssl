@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block page_header %}
+  <h1 class="text-center pt-3">Welcome to Liam's Blog</h1>
+{% endblock page_header %}
+
+  {% block content %}
+  {% if path %}
+    {{ path }}
+  {% endif %}
+  {% if filename %}
+    {{ filename }}
+  {% endif %}
+  <h2>Latest Posts</h2>
+  <hr />
+  <div class="container">
+    {% for blog in blogs.all %}
+      <a href="{% url 'detail' blog.id %}"><h3>{{ blog.title }}</h3></a>
+      {{ blog.pub_date_pretty }}
+      <br />
+      <img class="img-fluid" src="{{ blog.image.url }}" height=200 width=200 />
+      <br />
+      <p>{{ blog.summary }}</p>
+      <!-- <div class="card-body">
+        <p class="card-text">{{ blog.title }}</p>
+        <p class="card-text">{{ blog.pub_date }}</p>
+        <p class="card-text">{{ blog.body }}</p>
+      </div>
+      <img class="card-img-top" src="{{ blog.image.url }}" /> -->
+    {% endfor %}
+  </div>
+
+{% endblock content %}

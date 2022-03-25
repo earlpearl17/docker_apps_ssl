@@ -1,0 +1,62 @@
+# pull official base image
+FROM python:3.9.6-alpine as builder
+
+# set work directory
+#WORKDIR /usr/src/app
+
+# create directory for the app user
+#RUN mkdir -p /home/app
+RUN mkdir -p /home/app8
+
+# create the app user
+#RUN addgroup -S app && adduser -S app -G app
+RUN addgroup -S app8 && adduser -S app8 -G app8
+
+# create the appropriate directories
+ENV HOME=/home/app8
+ENV APP_HOME=/home/app8/web
+RUN mkdir $APP_HOME
+RUN mkdir -p $APP_HOME/static/css
+RUN mkdir $APP_HOME/media
+WORKDIR $APP_HOME
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add --virtual build-deps gcc python3-dev musl-dev \
+    && apk add jpeg-dev zlib-dev libjpeg \
+    && apk add libffi-dev \
+    && apk add postgresql postgresql-dev \
+    && apk del build-deps \
+    && apk add bash \
+    && apk --no-cache add musl-dev linux-headers g++
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
+
+# copy entrypoint.prod.sh
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.prod.sh
+RUN chmod +x  $APP_HOME/entrypoint.prod.sh
+
+# copy project
+COPY . $APP_HOME
+
+# copy css stylesheet
+COPY ./project/static/css/main.css ./static/css/
+
+# chown all the files to the app user
+#RUN chown -R app:app $APP_HOME
+RUN chown -R app8:app8 $APP_HOME
+
+# change to the app user
+#USER app
+USER app8
+
+# run entrypoint.prod.sh
+ENTRYPOINT ["/home/app8/web/entrypoint.prod.sh"]
